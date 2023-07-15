@@ -1,0 +1,15 @@
+# Server configuration
+Server:
+  Port: ":8080" # The port number on which the server will run
+  Protocol: "http" # The protocol used by the server. Can be "http" or "https"
+  CertFile: "cert.pem" # Path to the SSL certificate file required for HTTPS protocol
+  KeyFile: "key.pem" # Path to the private key file required for HTTPS protocol
+
+# JWT configuration
+JWTSecret: "mysecretkey" # Secret key used for JWT token signing
+JWTExpireTime: 1440 # Expiration time (in minutes) for JWT tokens
+
+# Database configuration
+Database:
+  Driver: "mysql" # Name of the database driver
+  Source: "root:password@tcp(localhost:3306)/mydatabase" # Database connection string
