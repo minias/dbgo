@@ -4,17 +4,16 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-
-	"github.com/minias/dbgo/database"
+	"github.com/minias/dbgo/databases"
 )
 
 // TableController handles the table-related operations
 type TableController struct {
-	db *database.Database
+	db *databases.Database
 }
 
 // NewTableController creates a new TableController instance
-func NewTableController(db *database.Database) *TableController {
+func NewTableController(db *databases.Database) *TableController {
 	return &TableController{
 		db: db,
 	}
@@ -34,7 +33,7 @@ func (ctrl *TableController) CreateTable(c echo.Context) error {
 	}
 
 	// Parse the request body as JSON
-	var tableData database.Table
+	var tableData databases.Table
 	if err := c.Bind(&tableData); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid table data")
 	}
@@ -63,7 +62,7 @@ func (ctrl *TableController) AlterTable(c echo.Context) error {
 	}
 
 	// Parse the request body as JSON
-	var tableData database.Table
+	var tableData databases.Table
 	if err := c.Bind(&tableData); err != nil {
 		return c.JSON(http.StatusBadRequest, "Invalid table data")
 	}

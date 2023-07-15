@@ -9,7 +9,7 @@ import (
 // Config represents the application configuration
 type Config struct {
 	Server   ServerConfig `yaml:"server"`
-	Database Db           `yaml:"Db"`
+	Database Database     `yaml:"Database"`
 	JWT      JWTConfig    `yaml:"jwt"`
 }
 
@@ -22,7 +22,7 @@ type ServerConfig struct {
 	KeyFile  string `yaml:"KeyFile"`
 }
 
-type Db struct {
+type Database struct {
 	Danymo Danymo `yaml:"danymo"`
 	Maria  Maria  `yaml:"maria"`
 }

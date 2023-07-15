@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"time"
@@ -10,13 +11,12 @@ import (
 
 	"github.com/minias/dbgo/config"
 	"github.com/minias/dbgo/controller" // 변경된 import 경로
-	"github.com/minias/dbgo/database"
+
+	"github.com/minias/dbgo/databases"
 )
 
 var (
-	cfg   *config.Config
-	db    *database.Database
-	users map[string]string
+	cfg *config.Config
 )
 
 func init() {
@@ -29,6 +29,7 @@ func init() {
 }
 
 func main() {
+
 	// Create a new Echo instance
 	e := echo.New()
 
@@ -38,16 +39,17 @@ func main() {
 	e.Use(middleware.CORS())
 
 	// Initialize database connection
-	// db, err := sql.open
-	//  .Connect.ConnectDB(cfg.Database.DBDriver, cfg.Database.DBSource)
-	// if err != nil {
-	// 	log.Fatalf("Failed to connect to database: %v", err)
-	// }
-	// defer db.Close()
+	db, err := sql.Open("mariadb", "dsn")
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	defer db.Close()
 
 	// Create database instance
-	dbInstance := database.NewDatabase(db)
-
+	dbInstance, err := databases.NewDatabase(db)
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
 	// Create controllers
 	dbController := controller.NewDatabaseController(dbInstance)
 	tableController := controller.NewTableController(dbInstance)

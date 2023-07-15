@@ -4,17 +4,16 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
-
-	"github.com/minias/dbgo/database"
+	"github.com/minias/dbgo/databases"
 )
 
 // DatabaseController handles the database-related operations
 type DatabaseController struct {
-	db *database.Database
+	db *databases.Database
 }
 
 // NewDatabaseController creates a new DatabaseController instance
-func NewDatabaseController(db *database.Database) *DatabaseController {
+func NewDatabaseController(db *databases.Database) *DatabaseController {
 	return &DatabaseController{
 		db: db,
 	}
