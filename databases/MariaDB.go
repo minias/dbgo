@@ -2,7 +2,6 @@ package databases
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	"gorm.io/driver/mysql"
@@ -77,8 +76,8 @@ func (db *Database) Close() error {
 // CreateDatabase creates a new database with the given name
 func (db *Database) CreateDatabase(databaseName string) error {
 	// Database creation logic
-	query := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s", databaseName)
-	_, err := db.DB.Exec(query)
+	query := "CREATE DATABASE IF NOT EXISTS '?'"
+	_, err := db.DB.Exec(query, databaseName)
 	if err != nil {
 		return err
 	}
@@ -89,8 +88,8 @@ func (db *Database) CreateDatabase(databaseName string) error {
 // DeleteDatabase deletes the specified database
 func (db *Database) DeleteDatabase(databaseName string) error {
 	// Database deletion logic
-	query := fmt.Sprintf("DROP DATABASE IF EXISTS %s", databaseName)
-	_, err := db.DB.Exec(query)
+	query := "DROP DATABASE IF EXISTS '?'"
+	_, err := db.DB.Exec(query, databaseName)
 	if err != nil {
 		return err
 	}
@@ -101,8 +100,8 @@ func (db *Database) DeleteDatabase(databaseName string) error {
 // CheckDatabaseExists checks if the specified database exists
 func (db *Database) CheckDatabaseExists(databaseName string) (bool, error) {
 	// Database existence check logic
-	query := fmt.Sprintf("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '%s'", databaseName)
-	row := db.DB.QueryRow(query)
+	query := "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '?'"
+	row := db.DB.QueryRow(query, databaseName)
 	var dbName string
 	err := row.Scan(&dbName)
 	if err == sql.ErrNoRows {
@@ -116,17 +115,22 @@ func (db *Database) CheckDatabaseExists(databaseName string) (bool, error) {
 
 // CreateTable creates a new table in the specified database
 func (db *Database) CreateTable(databaseName string, tableData *Table) error {
+	var args interface{}
 	// Table creation logic
-	query := fmt.Sprintf("CREATE TABLE IF NOT EXISTS %s.%s (", databaseName, tableData.Name)
+	query := "CREATE TABLE IF NOT EXISTS ?.? ("
+	args = databaseName
+	args = tableData.Name
 	for i, column := range tableData.Columns {
-		query += fmt.Sprintf("%s %s", column.Name, column.Type)
+		query += "? ? "
+		args = column.Name
+		args = column.Type
 		if i != len(tableData.Columns)-1 {
 			query += ", "
 		}
 	}
 	query += ")"
 
-	_, err := db.DB.Exec(query)
+	_, err := db.DB.Exec(query, args)
 	if err != nil {
 		return err
 	}
@@ -136,16 +140,22 @@ func (db *Database) CreateTable(databaseName string, tableData *Table) error {
 
 // AlterTable alters an existing table in the specified database
 func (db *Database) AlterTable(databaseName, tableName string, tableData *Table) error {
+	var args interface{}
 	// Table alteration logic
-	query := fmt.Sprintf("ALTER TABLE %s.%s ", databaseName, tableName)
+	query := "ALTER TABLE ?.? "
+	args = databaseName
+	args = tableName
+
 	for i, column := range tableData.Columns {
-		query += fmt.Sprintf("ADD COLUMN %s %s", column.Name, column.Type)
+		query += "ADD COLUMN ? ?"
+		args = column.Name
+		args = column.Type
 		if i != len(tableData.Columns)-1 {
 			query += ", "
 		}
 	}
 
-	_, err := db.DB.Exec(query)
+	_, err := db.DB.Exec(query, args)
 	if err != nil {
 		return err
 	}
@@ -156,8 +166,8 @@ func (db *Database) AlterTable(databaseName, tableName string, tableData *Table)
 // DeleteTable deletes an existing table from the specified database
 func (db *Database) DeleteTable(databaseName, tableName string) error {
 	// Table deletion logic
-	query := fmt.Sprintf("DROP TABLE IF EXISTS %s.%s", databaseName, tableName)
-	_, err := db.DB.Exec(query)
+	query := "DROP TABLE IF EXISTS ?.?"
+	_, err := db.DB.Exec(query, databaseName, tableName)
 	if err != nil {
 		return err
 	}
@@ -168,8 +178,8 @@ func (db *Database) DeleteTable(databaseName, tableName string) error {
 // CheckTableExists checks if the specified table exists in the database
 func (db *Database) CheckTableExists(databaseName, tableName string) (bool, error) {
 	// Table existence check logic
-	query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name = '%s'", databaseName, tableName)
-	row := db.DB.QueryRow(query)
+	query := "SELECT table_name FROM information_schema.tables WHERE table_schema = '?' AND table_name = '?'"
+	row := db.DB.QueryRow(query, databaseName, tableName)
 	var tblName string
 	err := row.Scan(&tblName)
 	if err == sql.ErrNoRows {
@@ -184,9 +194,8 @@ func (db *Database) CheckTableExists(databaseName, tableName string) (bool, erro
 // GetTableData retrieves the data from an existing table in the specified database
 func (db *Database) GetTableData(databaseName, tableName string) ([]map[string]interface{}, error) {
 	// Table data retrieval logic
-	query := fmt.Sprintf("SELECT * FROM %s.%s", databaseName, tableName)
-
-	rows, err := db.DB.Query(query)
+	query := "SELECT * FROM ?.?"
+	rows, err := db.DB.Query(query, databaseName, tableName)
 	if err != nil {
 		return nil, err
 	}
